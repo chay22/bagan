@@ -74,8 +74,10 @@ class Container implements ContainerInterface
             unset($this->instances[$abstract]);
         }
 
-        if (isset($this->aliases[$abstract])) {
-            unset($this->aliases[$abstract]);
+        foreach ($this->aliases as $alias => $abstraction) {
+            if ($abstract === $abstraction) {
+                unset($this->aliases[$abstract]);
+            }
         }
     }
 
