@@ -200,6 +200,8 @@ class Container implements ContainerInterface
             if (! isset($this->instances[$abstract])) {
                 $this->instances[$abstract] = $instance;
             }
+
+            return $instance;
         }
 
         if (isset($this->aliases[$abstract])) {
