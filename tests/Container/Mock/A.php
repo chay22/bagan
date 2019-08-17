@@ -6,4 +6,9 @@ namespace Bagan\Test\Container\Mock;
 
 class A {
     public $prop = 'a';
+
+    public function __construct($int = null)
+    {
+
+    }
 }

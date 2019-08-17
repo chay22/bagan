@@ -58,6 +58,28 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Unbind bindings from container. Either from singleton
+     * or register method.
+     *
+     * @param  $string  $abstract
+     * @return void
+     */
+    public function unbind(string $abstract)
+    {
+        if (isset($this->bindings[$abstract])) {
+            unset($this->bindings[$abstract]);
+        }
+
+        if (isset($this->instances[$abstract])) {
+            unset($this->instances[$abstract]);
+        }
+
+        if (isset($this->aliases[$abstract])) {
+            unset($this->aliases[$abstract]);
+        }
+    }
+
+    /**
      * Resolve the given type from the container.
      *
      * @param  string  $abstract
@@ -80,7 +102,7 @@ class Container implements ContainerInterface
             return $this->make($this->aliases[$abstract]);
         }
 
-        return $this->inject($abstract);
+        return $this->build($abstract);
     }
 
     /**
@@ -245,15 +267,7 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        try {
-            return $this->make($id);
-        } catch (Exception $e) {
-            if ($this->has($id)) {
-                throw $e;
-            }
-
-            throw new NotFoundException("Class {$id} could not be bound in container");
-        }
+        return $this->make($id);
     }
 
     /**
@@ -270,7 +284,6 @@ class Container implements ContainerInterface
     public function has($id): bool
     {
         return isset($this->bindings[$id]) ||
-               isset($this->instances[$id]) ||
                isset($this->aliases[$id]);
     }
 }

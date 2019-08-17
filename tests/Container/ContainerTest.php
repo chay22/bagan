@@ -23,6 +23,8 @@ class ContainerTest extends TestCase
     /**
      * Assert that container does not need service registration.
      * @covers ::inject
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerInjects()
     {
@@ -30,6 +32,56 @@ class ContainerTest extends TestCase
 
         $a = $container->inject(A::class);
         $this->assertInstanceOf(A::class, $a);
+    }
+
+    /**
+     * Assert that container can check for registered services.
+     * @covers ::has
+     * @covers ::alias
+     * @covers ::singleton
+     */
+    public function testContainerChecks()
+    {
+        $container = new Container();
+
+        $this->assertFalse($container->has(A::class));
+
+        $c = $container->singleton(B::class, B::class);
+        $this->assertTrue($container->has(B::class));
+
+        $container->alias(B::class, 'myalias');
+        $this->assertTrue($container->has('myalias'));
+    }
+
+    /**
+     * Assert that container binding can be removed.
+     * @covers ::alias
+     * @covers ::unbind
+     * @covers ::has
+     * @covers ::inject
+     * @covers ::make
+     * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
+     * @covers ::singleton
+     */
+    public function testContainerRemovals()
+    {
+        $container = new Container();
+        $container->unbind(A::class);
+
+        $container->singleton(A::class, A::class);
+        $this->assertTrue($container->has(A::class));
+        $container->unbind(A::class);
+        $this->assertFalse($container->has(A::class));
+
+        $container->singleton(A::class, A::class);
+        $this->assertTrue($container->has(A::class));
+        $container->alias(A::class, 'myalias');
+        $this->assertTrue($container->has('myalias'));
+        $container->make(A::class);
+        $container->unbind(A::class);
+        $this->assertFalse($container->has(A::class));
     }
 
     /**
@@ -41,6 +93,8 @@ class ContainerTest extends TestCase
      * @covers ::build
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerRetrievals()
     {
@@ -63,6 +117,8 @@ class ContainerTest extends TestCase
      * @covers ::make
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerSingleton()
     {
@@ -86,6 +142,8 @@ class ContainerTest extends TestCase
      * @covers ::make
      * @covers ::build
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerBuildSingletonFail()
     {
@@ -110,6 +168,8 @@ class ContainerTest extends TestCase
      * @covers ::make
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerInjectSingletonFails()
     {
@@ -135,6 +195,8 @@ class ContainerTest extends TestCase
      * @covers ::build
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerFreshObjects()
     {
@@ -153,6 +215,21 @@ class ContainerTest extends TestCase
         $this->assertEquals($a->prop, 'sample2');
         $this->assertEquals($a->prop, $b->prop);
         $this->assertSame($a, $b);
+    }
+
+    /**
+     * Assert that container can instantiate object without registering.
+     * @covers ::build
+     * @covers ::inject
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
+     */
+    public function testContainerFreshObjectsWithoutRegisters()
+    {
+        $container = new Container();
+        $a = $container->build(A::class);
+
+        $this->assertInstanceOf(A::class, $a);
     }
 
     /**
@@ -179,6 +256,7 @@ class ContainerTest extends TestCase
      * @covers ::get
      * @covers ::inject
      * @covers ::make
+     * @covers ::build
      * @covers ::has
      * @covers ::resolveDependencies
      */
@@ -194,6 +272,7 @@ class ContainerTest extends TestCase
      * Assert that the container failed to instantiate primitive without default value.
      * @covers ::register
      * @covers ::make
+     * @covers ::build
      * @covers ::inject
      * @covers ::resolveBinding
      * @covers ::resolveDependencies
@@ -213,6 +292,7 @@ class ContainerTest extends TestCase
      * Assert that the container failed to instantiate primitive with default value.
      * @covers ::register
      * @covers ::make
+     * @covers ::build
      * @covers ::inject
      * @covers ::resolveBinding
      * @covers ::resolveDependencies
@@ -280,6 +360,8 @@ class ContainerTest extends TestCase
      * @covers ::make
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerConcreteClosures()
     {
