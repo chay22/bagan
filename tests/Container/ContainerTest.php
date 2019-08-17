@@ -10,7 +10,7 @@ use Bagan\Container\{
     NotInstantiableException,
     UnresolvableDependencyException
 };
-use Bagan\Test\Container\Mock\{A, B, C, D, E};
+use Bagan\Test\Container\Mock\{A, B, C, D, E, F};
 use Exception;
 use PHPUnit\Framework\{ExpectationFailedException, TestCase};
 use ReflectionException;
@@ -316,6 +316,8 @@ class ContainerTest extends TestCase
     public function testContainerNotInstantiableFailures()
     {
         $container = new Container();
+        $f = $container->inject(F::class);
+        $this->assertInstanceOf(F::class, $f);
         $this->expectException(NotInstantiableException::class);
         $container->inject('NotExistedClass');
     }
