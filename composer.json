@@ -1,0 +1,34 @@
+{
+  "name": "chay/bagan",
+  "description": "A PHP framework",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Cahyadi Nugraha",
+      "email": "cahyadinugraha18@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Bagan\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Bagan\\Test\\": "tests"
+    }
+  },
+  "minimum-stability": "stable",
+  "require": {
+    "psr/container": "^1.0"
+  },
+  "scripts": {
+    "test": [
+      "phpunit"
+    ]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "8.3"
+  }
+}
