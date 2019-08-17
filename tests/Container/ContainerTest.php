@@ -6,11 +6,14 @@ namespace Bagan\Test\Container;
 
 use Bagan\Container\{
     Container,
+    NotFoundException,
     NotInstantiableException,
     UnresolvableDependencyException
 };
-use Bagan\Test\Container\Mock\{A, B, C};
+use Bagan\Test\Container\Mock\{A, B, C, D, E};
+use Exception;
 use PHPUnit\Framework\{ExpectationFailedException, TestCase};
+use ReflectionException;
 
 /**
  * @coversDefaultClass \Bagan\Container\Container
@@ -168,6 +171,23 @@ class ContainerTest extends TestCase
 
         $this->expectException(UnresolvableDependencyException::class);
         $container->make(B::class);
+        $container->get(B::class);
+    }
+
+    /**
+     * Assert that the container throw exception on not found service
+     * @covers ::get
+     * @covers ::inject
+     * @covers ::make
+     * @covers ::has
+     * @covers ::resolveDependencies
+     */
+    public function testContainerNotFounds()
+    {
+        $container = new Container();
+
+        $this->expectException(ReflectionException::class);
+        $container->get(E::class);
     }
 
     /**
@@ -177,6 +197,7 @@ class ContainerTest extends TestCase
      * @covers ::inject
      * @covers ::resolveBinding
      * @covers ::resolveDependencies
+     * @covers ::resolveClass
      * @covers ::resolvePrimitive
      */
     public function testContainerDependencyInjectionOnInjectionPrimitiveFailures()
@@ -184,7 +205,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->register(D::class, D::class);
 
-        $this->expectException(NotInstantiableException::class);
+        $this->expectException(UnresolvableDependencyException::class);
         $container->make(D::class);
     }
 
@@ -222,22 +243,57 @@ class ContainerTest extends TestCase
     /**
      * Assert that container can be retrieved with alias.
      * @covers ::register
+     * @covers ::singleton
      * @covers ::alias
      * @covers ::make
+     * @covers ::build
      * @covers ::inject
      * @covers ::resolveBinding
+     * @covers ::resolveClass
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
      */
     public function testContainerAlias()
     {
         $container = new Container();
-        $container->register(A::class, A::class);
+        $container->singleton(A::class, A::class);
         $container->alias(A::class, 'myalias');
+        $container->register(C::class, C::class);
+        $container->alias(C::class, 'myalias2');
 
         $a = $container->make(A::class);
         $b = $container->make('myalias');
+        $c = $container->build(C::class);
+        $d = $container->build('myalias2');
 
         $this->assertInstanceOf(A::class, $a);
         $this->assertInstanceOf(A::class, $b);
+        $this->assertInstanceOf(C::class, $c);
+        $this->assertInstanceOf(C::class, $d);
         $this->assertEquals($a, $b);
+    }
+
+    /**
+     * Assert that container accepts closure as the concrete.
+     * @covers ::register
+     * @covers ::singleton
+     * @covers ::make
+     * @covers ::inject
+     * @covers ::resolveBinding
+     */
+    public function testContainerConcreteClosures()
+    {
+        $container = new Container();
+        $container->singleton(A::class, A::class);
+        $container->register(B::class, function ($container) {
+            return new B(2, $container->make(A::class));
+        });
+
+        $a = $container->make(A::class);
+        $b = $container->make(B::class);
+
+        $this->assertInstanceOf(A::class, $a);
+        $this->assertInstanceOf(B::class, $b);
+        $this->assertSame($a, $b->prop);
     }
 }

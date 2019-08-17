@@ -7,8 +7,8 @@ namespace Bagan\Test\Container\Mock;
 class B {
     public $prop = 'b';
 
-    public function __construct($int)
+    public function __construct($int, A $a)
     {
-
+        $this->prop = $a;
     }
 }
