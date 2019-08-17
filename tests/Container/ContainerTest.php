@@ -171,6 +171,24 @@ class ContainerTest extends TestCase
     }
 
     /**
+     * Assert that the container failed to instantiate primitive without default value.
+     * @covers ::register
+     * @covers ::make
+     * @covers ::inject
+     * @covers ::resolveBinding
+     * @covers ::resolveDependencies
+     * @covers ::resolvePrimitive
+     */
+    public function testContainerDependencyInjectionOnInjectionPrimitiveFailures()
+    {
+        $container = new Container();
+        $container->register(D::class, D::class);
+
+        $this->expectException(NotInstantiableException::class);
+        $container->make(D::class);
+    }
+
+    /**
      * Assert that the container failed to instantiate primitive with default value.
      * @covers ::register
      * @covers ::make
